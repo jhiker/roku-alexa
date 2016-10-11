@@ -5,6 +5,13 @@ PlayLast play the next episode
 PlayLast play next
 PlayLast play netflix
 
+Youtube play youtube
+Youtube youtube
+
+HBO play on HBO {cosmos|Text}
+HBO play on HBO {Game of Thrones|Text}
+HBO play on HBO {Sexo Urbano|Text}
+
 NextEpisode skip
 NextEpisode skip episode
 NextEpisode next episode
@@ -42,6 +49,13 @@ SearchPlay play next {cosmos|Text}
 SearchPlay play next {How I met your mother|Text}
 SearchPlay play next {Knights of sidonia|Text}
 SearchPlay play next {Gargantia|Text}
+
+Spotify spotify the song {dance|Text}
+Spotify spotify the song {sample and hold|Text}
+Spotify spotify {sample and hold|Text}
+Spotify spotify {hot stuff|Text}
+Spotify spotify {Knights of sidonia|Text}
+
 
 HelpIntent help
 HelpIntent help me

@@ -17,6 +17,28 @@
       "slots": []
     },
     {
+      "intent": "Youtube",
+      "slots": []
+    },
+    {
+      "intent": "HBO",
+      "slots": [
+          {
+              "name": "Text",
+              "type": "LITERAL"
+          }
+      ]
+    },
+    {
+      "intent": "Spotify",
+      "slots": [
+          {
+              "name": "Text",
+              "type": "LITERAL"
+          }
+      ]
+    },
+    {
       "intent": "Type",
       "slots": [
           {

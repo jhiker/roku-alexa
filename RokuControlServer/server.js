@@ -71,6 +71,10 @@ function createTypeSequence(text) {
 			sequence.push(rokuAddress+"keypress/Lit_"+text.charAt(i));
 			sequence.push(100);
 		}
+		else if (c === 32) {
+			sequence.push(rokuAddress+"keypress/Lit_%20");
+			sequence.push(100);
+		}
 	}
 	return sequence;
 }
@@ -84,6 +88,18 @@ function getRequestData(request,callback) {
 	request.on("end",function() {
 		callback(body);
 	});
+}
+
+function parseData(data) {
+	//ugly data parse function
+	var lines = data.replace(/^\s+|\s+$/g,'').toLowerCase().split('\n');
+	for (var i = 0; i < lines.length; i ++) {
+		var line = lines[i];
+		if (line.trim().length !== 0) {
+			if (line.split(':')[0] !== 'content-disposition' && line[0] != '-')
+				return line;
+		}	
+	};
 }
 
 //depending on the URL endpoint accessed, we use a different handler.
@@ -109,7 +125,8 @@ var handlers = {
     //This endpoint doenst perform any operations, but it allows an easy way for you to dictate typed text without having to use the on screen keyboard
 	"/roku/type":function(request,response) {
 		getRequestData(request,function(data) {
-			var text = data.replace(/^\s+|\s+$/g,'').toLowerCase(); //trim whitespace and lowercase
+			var text = parseData(data); //trim whitespace and lowercase
+			console.log('parse', text);
 			var sequence = createTypeSequence(text);
 			postSequence(sequence,function() {
 
@@ -120,19 +137,30 @@ var handlers = {
     //Takes the POST data and uses it to search for a show and then immediate plays that show
 	"/roku/searchplay":function(request,response) {
 		getRequestData(request,function(data) {
-			var text = data.replace(/^\s+|\s+$/g,'').toLowerCase(); //trim whitespace and lowercase
+			var text = parseData(data); //trim whitespace and lowercase
+			console.log(text);
 			var sequence = [].concat([
 				rokuAddress+"keypress/home",    //wake roku
 				rokuAddress+"keypress/home",    //reset to home screen
 				3000,
 				rokuAddress+"launch/12",        //launch netflix app
-				7000,
-				rokuAddress+"keypress/down",    //navigate to search
-				1000,
+				9000,
 				rokuAddress+"keypress/Select",  //select search
-				2000,
+				200,
+				rokuAddress+"keypress/Select",  //select search
+				200,
+				rokuAddress+"keypress/Select",  //select search
+				200,
+				rokuAddress+"keypress/back",    //navigate to search
+				300,
+				rokuAddress+"keypress/back",    //navigate to search
+				300,
+				rokuAddress+"keypress/back",    //navigate to search
+				300,
+				rokuAddress+"keypress/Select",  //select search
+				200,
 			],createTypeSequence(text),[        //enter the text
-				1000,
+				8000,
 				rokuAddress+"keypress/right",   //go to search selections (which show up to the right of they keyboard.. we need to tap through them)
 				100,
 				rokuAddress+"keypress/right",
@@ -149,8 +177,6 @@ var handlers = {
 				3000,                          //wait for main menu
 				rokuAddress+"keypress/right",  //goto searched item
 				rokuAddress+"keypress/Select", //drill into show
-				3000,
-				rokuAddress+"keypress/Play",   //play when loaded
 			]);
 			postSequence(sequence);
 			response.end("OK");	 //respond with OK before the operation finishes
@@ -200,7 +226,114 @@ var handlers = {
 
 		});
 		response.end("OK");
+	},
+	"/roku/hbo":function(request,response) {
+		postSequence([
+			rokuAddress+"keypress/home",
+			100,
+			rokuAddress+"/launch/8378",
+			6000,
+		],function() {
+			getRequestData(request,function(data) {
+				var text = parseData(data); //trim whitespace and lowercase
+				console.log(text);
+				if (text && text.length) {
+					var arr = [];
+					for (var i = 0; i < 20; i ++) {
+						arr.push(rokuAddress+"keypress/down");
+						arr.push(50);
+					}
+					arr.push(rokuAddress + 'keypress/select');
+					arr.push(3000);
+					arr = arr.concat(createTypeSequence(text));
+					for (var i = 0; i < 15; i ++) {
+						arr.push(rokuAddress+"keypress/down");
+						arr.push(50);
+					}
+					arr.push(rokuAddress+"keypress/select");
+					arr.push(400);
+					arr.push(rokuAddress+"keypress/select");
+					arr.push(400);
+					arr.push(rokuAddress+"keypress/select");
+					postSequence(arr);
+				}
+			});
+			response.end("OK");
+			}
+		);
+	},
+	"/roku/youtube":function(request,response) {
+		postSequence([
+			rokuAddress+"keypress/home",
+			100,
+			rokuAddress+"/launch/837",
+			12000,
+		],function() {
+			getRequestData(request,function(data) {
+				var text = parseData(data); //trim whitespace and lowercase
+				console.log(text);
+				if (text && text.length) {
+					var arr = [];
+					for (var i = 0; i < 8; i ++) {
+						arr.push(rokuAddress+"keypress/up");
+						arr.push(50);
+					}
+					arr.push(rokuAddress + 'keypress/select');
+					arr.push(1000);
+					arr = arr.concat(createTypeSequence(text));
+					postSequence(arr);
+				}
+			});
+			response.end("OK");
+			}
+		);
+	},
+
+	"/roku/spotify":function(request,response) {
+		postSequence([
+			rokuAddress+"keypress/home",
+			100,
+			rokuAddress+"/launch/19977",
+			4500,
+		],function() {
+			getRequestData(request,function(data) {
+				var text = parseData(data); //trim whitespace and lowercase
+				console.log(text);
+				if (text && text.length) {
+					var arr = [];
+					for (var i = 0; i < 8; i ++) {
+						arr.push(rokuAddress+"keypress/up");
+						arr.push(50);
+					}
+					arr.push(rokuAddress + 'keypress/select');
+					arr.push(1000);
+					arr.push(rokuAddress + 'keypress/select');
+					arr = arr.concat(createTypeSequence(text));
+					arr.push(1000);
+					for (var i = 0; i < 3; i ++) {
+						arr.push(rokuAddress+"keypress/right");
+						arr.push(50);
+					}
+					arr.push(rokuAddress+'keypress/select');
+					arr.push(rokuAddress+'keypress/select');
+					postSequence(arr);
+				}
+			});
+			response.end("OK");
+			}
+		);
+	},
+
+
+	"/roku/toggletv":function(request,response) {
+		postSequence([
+			rokuAddress+"keypress/power",
+		],function() {
+
+		});
+		response.end("OK");
 	}
+
 }
 
 //handles and incoming request by calling the appropriate handler based on the URL

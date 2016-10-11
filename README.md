@@ -1,6 +1,8 @@
 RokuAlexaLambdaSkill
 ====================
 
+Based on this repository, but modified to work with current Roku 3, some skills added
+
 For detailed instructions, check out the blog post on http://reflowster.com/blog/2015/07/21/rokuvoicecontrol.html
 
 1. Start the Roku control server by running "npm install" and "node server.js" in the RokuControlServer folder
